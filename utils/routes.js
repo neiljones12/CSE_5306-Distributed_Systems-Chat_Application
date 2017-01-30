@@ -59,7 +59,8 @@ class Routes {
                 for (let i = 0; i < this.users.length; i++) {
 
                     if (this.users[i].id === socket.id) {
-                        this.users.splice(i, 1);
+                        //this.users.splice(i, 1);
+                        this.users[i].online = false;
                     }
                 }
                 this.io.emit('exit', this.users);

@@ -26,13 +26,14 @@ app.factory('socket', function ($rootScope) {
 
 app.controller('Controller', function ($scope, $http, $localStorage, $location, socket) {
     $scope.init = function () {
+        $scope.writeMessage = false;
         $localStorage["users"] = null;
         $scope.socketId = null;
         $scope.selectedUser = null;
         $scope.messages = [];
         $scope.msgData = null;
         $scope.userList = [];
-
+        $scope.status = "Visible";
         $scope.login = true;
         $localStorage["currentUser"] = null;
         $scope.username = "";
@@ -42,17 +43,19 @@ app.controller('Controller', function ($scope, $http, $localStorage, $location, 
     };
 
     $scope.visibleLogin = function () {
+        $scope.status = "Visible";
         if ($scope.username != "")
         {
             $scope.check($scope.username, true)
-            var user = { id: $localStorage["users"].length + 1, name: $scope.username, visible: true };
+            var user = { id: $localStorage["users"].length + 1, name: $scope.username, visible: true , online: true};
             $scope.register(user);
         } 
     };
 
     $scope.invisibleLogin = function () {
+        $scope.status = "In Visible";
         $scope.check($scope.username, false)
-        var user = { id: $localStorage["users"].length + 1, name: $scope.username, visible: false };
+        var user = { id: $localStorage["users"].length + 1, name: $scope.username, visible: false, online: true };
         $scope.register(user);
     };
 
@@ -87,6 +90,7 @@ app.controller('Controller', function ($scope, $http, $localStorage, $location, 
     };
 
     $scope.seletedUser = (selectedUser) => {
+        $scope.writeMessage = true;
         selectedUser === $scope.socketId ? alert("Can't message to yourself.") : $scope.selectedUser = selectedUser;
     };
 

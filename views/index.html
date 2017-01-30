@@ -16,40 +16,50 @@
             </div>
         </div>
     </div>
-    <div ng-hide="login">
-        <div class="login-page" >
-            <div class="form">
-                <form class="login-form">
-                    <button type="button" ng-click="logout()">Logout</button>
-                    <h1>{{username}}</h1>
-                    <ul class="list-group">
-                        <li class="list-group-item"
-                            ng-repeat="user in userList"
-                            ng-class="{ 'active' : user.id == selectedUser}"
-                            ng-click=seletedUser(user.id);
-                            ng-style="{
-                            'cursor': user.id === socketId ? 'not-allowed' :'pointer'
-                        }">
-                            <span id='{{user.id}}'>{{ user.id === socketId ? 'You': user.userName }}</span>
-                        </li>
-                    </ul>
+    <div ng-hide="login" style="padding:50px;">
+        <div style="padding:20px">
+            <div class="container">
 
-                    <h2>Messages sent by users</h2>
-                    <div class="message-container">
-                        <ul class="list-group">
-                            <li class="list-group-item"
-                                ng-repeat="message in messages">
-                                {{ message.name }} says: {{ message.msg }}
-                            </li>
-                        </ul>
-                        <div class="alert alert-warning" ng-show='messages.length == 0'>
-                            No messages for you.
+                <div class="row row-offcanvas row-offcanvas-right">
+
+                    <div class="col-12 col-md-9">
+                        <div class="jumbotron">
+                            <h1>Hello, {{username}}!</h1>
+                            <p>Visibility: <span class="badge badge-default">{{status}}</span></p>
+                            <hr />
+                            <ul class="list-group">
+                                <li class="list-group-item"
+                                    ng-repeat="message in messages">
+                                    {{ message.name }} says: {{ message.msg }}
+                                </li>
+                            </ul>
+                            <div class="alert alert-warning" ng-show='messages.length == 0'>
+                                No messages for you.
+                            </div> 
+                            <hr />
+                            <div ng-show="writeMessage">
+                                <div class="message-sender">
+                                    <textarea class="form-control" ng-model='message' ng-keypress="sendMsg($event)"></textarea>
+                                </div>
+                            </div> 
                         </div>
                     </div>
-                    <div class="message-sender">
-                        <textarea class="form-control" ng-model='message' ng-keypress="sendMsg($event)"></textarea>
+
+                    <div class="col-6 col-md-3 sidebar-offcanvas" id="sidebar">
+                        <h3>USERS ONLINE</h3><hr />
+                        <div class="list-group">
+                            <div class="list-group-item"
+                                 ng-repeat="user in userList"
+                                 ng-class="{ 'active' : user.id == selectedUser}"
+                                 ng-click=seletedUser(user.id);
+                                 ng-style="{
+                            'cursor': user.id === socketId ? 'not-allowed' :'pointer'
+                        }">
+                                <span id='{{user.id}}'>{{ user.id === socketId ? 'You': user.userName}}</span>
+                            </div>
+                        </div>
                     </div>
-                </form>
+                </div> 
             </div>
         </div> 
     </div>
