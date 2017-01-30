@@ -26,17 +26,22 @@ app.factory('socket', function ($rootScope) {
 
 app.controller('Controller', function ($scope, $http, $localStorage, $location, socket) {
     $scope.init = function () {
+        $scope.searchUsername = "";
         $scope.writeMessage = false;
-        $localStorage["users"] = null;
         $scope.socketId = null;
         $scope.selectedUser = null;
         $scope.messages = [];
-        $scope.msgData = null;
-        $scope.userList = [];
+        $scope.msgData = null; 
         $scope.status = "Visible";
         $scope.login = true;
         $localStorage["currentUser"] = null;
         $scope.username = "";
+
+        if($scope.userList == undefined)
+        {
+            $scope.userList = [];
+        }
+
         if ($localStorage.users == null) {
             $localStorage["users"] = "[]";
         }
@@ -44,18 +49,17 @@ app.controller('Controller', function ($scope, $http, $localStorage, $location, 
 
     $scope.visibleLogin = function () {
         $scope.status = "Visible";
-        if ($scope.username != "")
-        {
+        if ($scope.username != "") {
             $scope.check($scope.username, true)
-            var user = { id: $localStorage["users"].length + 1, name: $scope.username, visible: true , online: true};
+            var user = { name: $scope.username, visible: true, online: true };
             $scope.register(user);
-        } 
+        }
     };
 
     $scope.invisibleLogin = function () {
         $scope.status = "In Visible";
         $scope.check($scope.username, false)
-        var user = { id: $localStorage["users"].length + 1, name: $scope.username, visible: false, online: true };
+        var user = { name: $scope.username, visible: false, online: true };
         $scope.register(user);
     };
 
@@ -64,7 +68,8 @@ app.controller('Controller', function ($scope, $http, $localStorage, $location, 
         for (var i = 0; i < users.length; i++) {
             if (users[i].name == username) {
                 users[i].visible = status;
-                $scope.redirect(username);
+                socket.emit('login', username, status);
+                $scope.redirect(users[i]);
             }
         }
     };
@@ -73,21 +78,23 @@ app.controller('Controller', function ($scope, $http, $localStorage, $location, 
         //console.log(user.name);
         var users = JSON.parse($localStorage["users"]);
         users.push(user);
-        $localStorage["users"] = JSON.stringify(users); 
-        $scope.redirect(user.name);
+        $localStorage["users"] = JSON.stringify(users);
+        $scope.redirect(user);
     };
 
-    $scope.logout = function () {
+    $scope.logout = function (username) {
         $localStorage["currentUser"] = "";
-        $scope.selectedUser = null;
         $scope.login = true;
+        socket.emit('logout', username);
     };
 
-    $scope.redirect = function (username) { 
-        $localStorage["currentUser"] = username;
+    $scope.redirect = function (user) {
+        $localStorage["currentUser"] = user.name;
         $scope.login = false;
-        $scope.username = $localStorage["currentUser"];
-        socket.emit('username', $localStorage["currentUser"]);
+        $scope.username = $localStorage["currentUser"]; 
+        console.log(user);
+
+        socket.emit('username', user);
     };
 
     $scope.seletedUser = (selectedUser) => {
@@ -105,7 +112,7 @@ app.controller('Controller', function ($scope, $http, $localStorage, $location, 
                 msg: $scope.message,
                 name: $scope.username
             };
-            
+
             $scope.messages.push(data);
 
             socket.emit('getMsg', {
@@ -125,11 +132,13 @@ app.controller('Controller', function ($scope, $http, $localStorage, $location, 
             $scope.socketId = socketId;
         }
         $scope.userList = userList;
+        $scope.userListCount = userList.length;
     });
 
 
     socket.on('exit', (userList) => {
         $scope.userList = userList;
+        $scope.userListCount = userList.length;
     });
 
     socket.on('sendMsg', (data) => {

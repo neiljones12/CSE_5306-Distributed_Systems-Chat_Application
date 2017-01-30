@@ -24,27 +24,61 @@ class Routes {
 
         this.io.on('connection', (socket) => {
 
-            socket.on('username', (userName) => {
+            socket.on('username', (user) => {
                 var repeat = false;
-                for (var i = 0; i < this.users.length;i++)
-                {
-                    if (this.users[i].userName == userName || this.users[i].userName == null)
-                    {
+                for (var i = 0; i < this.users.length; i++) {
+                    if (this.users[i].userName == user.name) { 
                         repeat = true;
                     }
                 }
 
-                if (!repeat)
-                {
+                if (!repeat) {
                     this.users.push({
                         id: socket.id,
-                        userName: userName
+                        userName: user.name,
+                        visible: user.visible,
+                        online: user.online
                     });
+
                     console.log(this.users);
+
                     let len = this.users.length;
                     len--;
                     this.io.emit('userList', this.users, this.users[len].id);
-                } 
+                }
+            });
+
+            socket.on('logout', (username) => {
+                var repeat = false;
+                for (var i = 0; i < this.users.length; i++) {
+                    if (this.users[i].userName == username) {
+                        this.users[i].online = false;
+                    }
+                }
+
+                console.log(this.users);
+
+                let len = this.users.length;
+                len--;
+                this.io.emit('userList', this.users, this.users[len].id);
+
+            });
+
+            socket.on('login', (username, visible) => {
+                var repeat = false;
+                for (var i = 0; i < this.users.length; i++) {
+                    if (this.users[i].userName == username) {
+                        this.users[i].online = true;
+                        this.users[i].visible = visible;
+                    }
+                }
+
+                console.log(this.users);
+
+                let len = this.users.length;
+                len--;
+                this.io.emit('userList', this.users, this.users[len].id);
+
             });
 
             socket.on('getMsg', (data) => {
@@ -52,6 +86,18 @@ class Routes {
                     msg: data.msg,
                     name: data.name
                 });
+            });
+
+            socket.on('logout', (socket) => {
+
+                for (let i = 0; i < this.users.length; i++) {
+
+                    if (this.users[i].id === socket.id) {
+                        //this.users.splice(i, 1);
+                        this.users[i].online = false;
+                    }
+                }
+                this.io.emit('exit', this.users);
             });
 
             socket.on('disconnect', () => {
