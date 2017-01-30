@@ -78,7 +78,8 @@ app.controller('Controller', function ($scope, $http, $localStorage, $location, 
     };
 
     $scope.logout = function () {
-        $localStorage["currentUser"] = null;
+        $localStorage["currentUser"] = "";
+        $scope.selectedUser = null;
         $scope.login = true;
     };
 
@@ -91,7 +92,7 @@ app.controller('Controller', function ($scope, $http, $localStorage, $location, 
 
     $scope.seletedUser = (selectedUser) => {
         $scope.writeMessage = true;
-        selectedUser === $scope.socketId ? alert("Can't message to yourself.") : $scope.selectedUser = selectedUser;
+        selectedUser === $scope.socketId ? alert("Can't message yourself.") : $scope.selectedUser = selectedUser;
     };
 
 
@@ -99,6 +100,14 @@ app.controller('Controller', function ($scope, $http, $localStorage, $location, 
         const keyCode = $event.which || $event.keyCode;
 
         if (keyCode === 13 && $scope.message !== null) {
+
+            var data = {
+                msg: $scope.message,
+                name: $scope.username
+            };
+            
+            $scope.messages.push(data);
+
             socket.emit('getMsg', {
                 toid: $scope.selectedUser,
                 msg: $scope.message,
