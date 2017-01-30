@@ -22,6 +22,33 @@
                 <form class="login-form">
                     <button type="button" ng-click="logout()">Logout</button>
                     <h1>{{username}}</h1>
+                    <ul class="list-group">
+                        <li class="list-group-item"
+                            ng-repeat="user in userList"
+                            ng-class="{ 'active' : user.id == selectedUser}"
+                            ng-click=seletedUser(user.id);
+                            ng-style="{
+                            'cursor': user.id === socketId ? 'not-allowed' :'pointer'
+                        }">
+                            <span id='{{user.id}}'>{{ user.id === socketId ? 'You': user.userName }}</span>
+                        </li>
+                    </ul>
+
+                    <h2>Messages sent by users</h2>
+                    <div class="message-container">
+                        <ul class="list-group">
+                            <li class="list-group-item"
+                                ng-repeat="message in messages">
+                                {{ message.name }} says: {{ message.msg }}
+                            </li>
+                        </ul>
+                        <div class="alert alert-warning" ng-show='messages.length == 0'>
+                            No messages for you.
+                        </div>
+                    </div>
+                    <div class="message-sender">
+                        <textarea class="form-control" ng-model='message' ng-keypress="sendMsg($event)"></textarea>
+                    </div>
                 </form>
             </div>
         </div> 
@@ -37,7 +64,6 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn"
             crossorigin="anonymous"></script>
     <script src="http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.2/angular.js"></script>
-    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.2/angular-route.js"></script>
     <script src="javascripts/app.js" type="text/javascript"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ngStorage/0.3.6/ngStorage.min.js"></script>
 </body>
