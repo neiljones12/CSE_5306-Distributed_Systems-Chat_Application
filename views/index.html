@@ -49,7 +49,7 @@
                                     No messages for you.
                                 </div>
                                 <hr />
-                                <div ng-show="writeMessage">
+                                <div>
                                     <div class="message-sender">
                                         <textarea class="form-control" ng-model='message' ng-keypress="sendMsg($event)"></textarea>
                                     </div>
@@ -59,22 +59,7 @@
                                 <div class="alert alert-info" ng-show='messages.length == 0'>
                                     {{messageInvite}}
                                 </div>
-                            </div>
-                            <!--<ul class="list-group">
-                                <li class="list-group-item"
-                                    ng-repeat="message in messages">
-                                    {{ message.name === username ? 'You' : message.name }}: {{ message.msg }}
-                                </li>
-                            </ul>
-                            <div class="alert alert-warning" ng-show='messages.length == 0'>
-                                No messages for you.
-                            </div>
-                            <hr />
-                            <div ng-show="writeMessage">
-                                <div class="message-sender">
-                                    <textarea class="form-control" ng-model='message' ng-keypress="sendMsg($event)"></textarea>
-                                </div>
-                            </div>-->
+                            </div> 
                         </div>
                     </div>
 

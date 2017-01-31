@@ -144,14 +144,39 @@ app.controller('Controller', function ($scope, $http, $localStorage, $location, 
         for (var i = 0; i < $scope.communicationList.length; i++) {
             //console.log($scope.communicationList[i]);
             if ($scope.communicationList[i].User2 == $scope.username) {
-                $scope.chatRequest = true;
-                $scope.chatRequestMessage = $scope.communicationList[i].User1 + " wants to chat";
-                $scope.communicationObject = $scope.communicationList[i];
+                if ($scope.communicationList[i].Accepted) {
+                    $scope.chatAccept = true;
+                    $scope.chatRequest = false; 
+                    console.log($scope.userList);
+                    for (var j = 0; j < $scope.userList.length;j++)
+                    {
+                        if($scope.userList[j].userName == $scope.communicationList[i].User1)
+                        {
+                            $scope.seletedUser($scope.userList[j].id);
+                        }
+                    }
+                }
+                else {
+                    $scope.chatRequest = true;
+                    $scope.chatRequestMessage = $scope.communicationList[i].User1 + " wants to chat";
+                    $scope.communicationObject = $scope.communicationList[i];
+                }
             }
             if ($scope.communicationList[i].User1 == $scope.username) {
-                $scope.chatInvite = true;
-                $scope.messageInvite = "Invitation sent to " + $scope.communicationList[i].User2; 
-                $scope.communicationObject = $scope.communicationList[i];
+                if ($scope.communicationList[i].Accepted) {
+                    $scope.chatAccept = true;
+                    $scope.chatInvite = false;
+                    for (var j = 0; j < $scope.userList.length; j++) {
+                        if ($scope.userList[j].userName == $scope.communicationList[i].User2) {
+                            $scope.seletedUser($scope.userList[j].id);
+                        }
+                    }
+                }
+                else {
+                    $scope.chatInvite = true;
+                    $scope.messageInvite = "Invitation sent to " + $scope.communicationList[i].User2;
+                    $scope.communicationObject = $scope.communicationList[i];
+                }
             }
         }
     }, true);
@@ -175,7 +200,7 @@ app.controller('Controller', function ($scope, $http, $localStorage, $location, 
     socket.on('communicationList', (data) => {
         $scope.communicationList = data;
     });
-     
+
 
     socket.on('sendMsg', (data) => {
         $scope.messages.push(data);
