@@ -26,24 +26,27 @@ app.factory('socket', function ($rootScope) {
 
 app.controller('Controller', function ($scope, $http, $localStorage, $location, socket) {
     $scope.init = function () {
+        $scope.chatRequest = false;
+        $scope.chatAccept = false;
+        $scope.chatDeclined = false;
+        $scope.chatInvite = false;
+        $scope.messageInvite = "";
         $scope.searchUsername = "";
         $scope.writeMessage = false;
         $scope.socketId = null;
         $scope.selectedUser = null;
         $scope.messages = [];
-        $scope.msgData = null; 
+        $scope.msgData = null;
         $scope.status = "Visible";
         $scope.login = true;
-        $localStorage["currentUser"] = null;
         $scope.username = "";
 
-        if($scope.userList == undefined)
-        {
+        if ($scope.userList == undefined) {
             $scope.userList = [];
         }
 
-        if ($localStorage.users == null) {
-            $localStorage["users"] = "[]";
+        if ($scope.communicationList == undefined) {
+            $scope.communicationList = [];
         }
     };
 
@@ -64,35 +67,29 @@ app.controller('Controller', function ($scope, $http, $localStorage, $location, 
     };
 
     $scope.check = function (username, status) {
-        var users = JSON.parse($localStorage["users"]);
-        for (var i = 0; i < users.length; i++) {
-            if (users[i].name == username) {
-                users[i].visible = status;
+        for (var i = 0; i < $scope.userList.length; i++) {
+            if ($scope.userList[i].name == username) {
+                $scope.userList[i].visible = status;
                 socket.emit('login', username, status);
-                $scope.redirect(users[i]);
+                $scope.redirect($scope.userList[i]);
             }
         }
     };
 
     $scope.register = function (user) {
-        //console.log(user.name);
-        var users = JSON.parse($localStorage["users"]);
-        users.push(user);
-        $localStorage["users"] = JSON.stringify(users);
+        $scope.userList.push(user);
         $scope.redirect(user);
     };
 
     $scope.logout = function (username) {
-        $localStorage["currentUser"] = "";
         $scope.login = true;
         socket.emit('logout', username);
     };
 
     $scope.redirect = function (user) {
-        $localStorage["currentUser"] = user.name;
         $scope.login = false;
-        $scope.username = $localStorage["currentUser"]; 
-        console.log(user);
+        $scope.username = user.name;;
+        //console.log(user);
 
         socket.emit('username', user);
     };
@@ -140,6 +137,45 @@ app.controller('Controller', function ($scope, $http, $localStorage, $location, 
         $scope.userList = userList;
         $scope.userListCount = userList.length;
     });
+
+    //Chat 
+
+    $scope.$watch('communicationList', function () {
+        for (var i = 0; i < $scope.communicationList.length; i++) {
+            //console.log($scope.communicationList[i]);
+            if ($scope.communicationList[i].User2 == $scope.username) {
+                $scope.chatRequest = true;
+                $scope.chatRequestMessage = $scope.communicationList[i].User1 + " wants to chat";
+                $scope.communicationObject = $scope.communicationList[i];
+            }
+            if ($scope.communicationList[i].User1 == $scope.username) {
+                $scope.chatInvite = true;
+                $scope.messageInvite = "Invitation sent to " + $scope.communicationList[i].User2; 
+                $scope.communicationObject = $scope.communicationList[i];
+            }
+        }
+    }, true);
+
+    $scope.acceptChat = function (data) {
+        socket.emit('ConnectionAccept', data);
+    };
+
+    $scope.declineChat = function (data) {
+        socket.emit('ConnectionDecline', data);
+    };
+
+    $scope.chatInitialte = function (User1, User2) {
+        var data = {
+            User1: User1,
+            User2: User2
+        };
+        socket.emit('ConnectionInitiate', data);
+    };
+
+    socket.on('communicationList', (data) => {
+        $scope.communicationList = data;
+    });
+     
 
     socket.on('sendMsg', (data) => {
         $scope.messages.push(data);

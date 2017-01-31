@@ -10,6 +10,7 @@ class Routes {
 			Array to store the list of users along with there respective socket id.
 		*/
         this.users = [];
+        this.connection = [];
     }
 
     appRoutes() {
@@ -23,11 +24,10 @@ class Routes {
     socketEvents() {
 
         this.io.on('connection', (socket) => {
-
             socket.on('username', (user) => {
                 var repeat = false;
                 for (var i = 0; i < this.users.length; i++) {
-                    if (this.users[i].userName == user.name) { 
+                    if (this.users[i].userName == user.name) {
                         repeat = true;
                     }
                 }
@@ -40,7 +40,7 @@ class Routes {
                         online: user.online
                     });
 
-                    console.log(this.users);
+                    console.log("User: " + user.name + " has logged in");
 
                     let len = this.users.length;
                     len--;
@@ -56,7 +56,7 @@ class Routes {
                     }
                 }
 
-                console.log(this.users);
+                console.log("User: " + username + " has logged off");
 
                 let len = this.users.length;
                 len--;
@@ -73,12 +73,46 @@ class Routes {
                     }
                 }
 
-                console.log(this.users);
+                console.log("User: " + username + " has logged in");
 
                 let len = this.users.length;
                 len--;
                 this.io.emit('userList', this.users, this.users[len].id);
 
+            });
+
+            socket.on('ConnectionInitiate', (data) => {
+                
+                var connection = {
+                    id: this.connection.length+1,
+                    User1: data.User1,
+                    User2: data.User2,
+                    Accepted: false
+                };
+                this.connection.push(connection);
+                console.log(data.User1 + " has initiated a chat request with " + data.User2);
+                this.io.emit('communicationList', this.connection);
+            });
+
+            socket.on('ConnectionAccept', (data) => {
+                for (var i = 0; i < this.connection.length; i++) {
+                    if (data.User1 == this.connection[i].User1 && data.User2 == this.connection[i].User2) {
+                        this.connection[i].Accepted = true;
+                    }
+                } 
+                console.log("Chat initiated between " + data.User1 + " and " + data.User2);
+                this.io.emit('communicationList', this.connection);
+            });
+
+            socket.on('ConnectionDecline', (data) => {
+                for (var i = 0; i < this.connection.length; i++) {
+                    if (data.User1 == this.connection[i].User1 && data.User2 == this.connection[i].User2) {
+                        this.connection[i].Accepted = false;
+                    }
+                }
+
+                console.log("Chat declined between " + data.User1 + " and " + data.User2);
+                this.io.emit('communicationList', this.connection);
             });
 
             socket.on('getMsg', (data) => {

@@ -24,10 +24,43 @@
 
                     <div class="col-12 col-md-9">
                         <div class="jumbotron">
-                            <h1>Hello, {{username}}!</h1><button type="button" class="btn-primary" ng-click="logout(username)">Logout</button>
+                            <button type="button" class="btn btn-secondary float-right" ng-click="logout(username)">Logout</button>
+                            <h1>Hello, {{username}}!</h1>
                             <p>Visibility: <span class="badge badge-default">{{status}}</span></p>
                             <hr />
-                            <ul class="list-group">
+                            <div ng-show="chatRequest">
+                                <div class="card">
+                                    <div class="card-block">
+                                        <h4 class="card-title">Invitation</h4>
+                                        <p class="card-text">{{chatRequestMessage}}</p>
+                                        <button type="button" class="btn btn-outline-primary" ng-click="acceptChat(communicationObject)">Accept</button>
+                                        <button type="button" class="btn btn-outline-danger" ng-click="declineChat(communicationObject)">Decline</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div ng-show="chatAccept">
+                                <ul class="list-group">
+                                    <li class="list-group-item"
+                                        ng-repeat="message in messages">
+                                        {{ message.name === username ? 'You' : message.name }}: {{ message.msg }}
+                                    </li>
+                                </ul>
+                                <div class="alert alert-warning" ng-show='messages.length == 0'>
+                                    No messages for you.
+                                </div>
+                                <hr />
+                                <div ng-show="writeMessage">
+                                    <div class="message-sender">
+                                        <textarea class="form-control" ng-model='message' ng-keypress="sendMsg($event)"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div ng-show="chatInvite">
+                                <div class="alert alert-info" ng-show='messages.length == 0'>
+                                    {{messageInvite}}
+                                </div>
+                            </div>
+                            <!--<ul class="list-group">
                                 <li class="list-group-item"
                                     ng-repeat="message in messages">
                                     {{ message.name === username ? 'You' : message.name }}: {{ message.msg }}
@@ -41,14 +74,14 @@
                                 <div class="message-sender">
                                     <textarea class="form-control" ng-model='message' ng-keypress="sendMsg($event)"></textarea>
                                 </div>
-                            </div>
+                            </div>-->
                         </div>
                     </div>
 
                     <div class="col-6 col-md-3 sidebar-offcanvas" id="sidebar">
                         <div class="card">
                             <div class="card-header">
-                                USERS ONLINE: {{userListCount}}
+                                Registered Users: {{userListCount}}
                             </div>
                             <div class="card-block">
                                 <h4 class="card-title">How to chat?</h4>
@@ -60,24 +93,19 @@
                                 <hr />
                                 <h4 class="card-title">Visible Users</h4>
                                 <div ng-repeat="user in userList">
-                                    <div ng-show="user.online">
-                                        <div class="alert alert-success" role="alert">
-                                            {{user.userName}}
+                                    <div ng-if="user.id != socketId">
+                                        <div ng-show="user.online">
+                                            <div class="alert alert-success" role="alert" ng-click="chatInitialte(username,user.userName)">
+                                                {{user.userName}}
+                                            </div>
+                                        </div>
+                                        <div ng-hide="user.online">
+                                            <div class="alert alert-warning" role="alert">
+                                                {{user.userName}} - offline
+                                            </div>
                                         </div>
                                     </div>
-                                    <div ng-hide="user.online">
-                                        <div class="alert alert-warning" role="alert">
-                                            {{user.userName}} - offline
-                                        </div>
-                                    </div> 
                                 </div>
-                                <!--<div class="list-group-item"
-                                     ng-repeat="user in userList"
-                                     ng-class="{ 'active' : user.id == selectedUser}"
-                                     ng-click=seletedUser(user.id);
-                                     ng-style="{'cursor': user.id === socketId ? 'not-allowed' :'pointer'}">
-
-                                </div>-->
                             </div>
                         </div>
                         <!--<h3>USERS ONLINE: {{userListCount}}</h3><hr />
@@ -91,10 +119,10 @@
                             </div>
                         </div>-->
                     </div>
-                </div> 
-            </div> 
-        </div> 
-    </div> 
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdn.socket.io/socket.io-1.0.0.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ"
