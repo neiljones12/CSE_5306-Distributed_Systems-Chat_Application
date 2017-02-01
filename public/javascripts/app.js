@@ -26,6 +26,7 @@ app.factory('socket', function ($rootScope) {
 
 app.controller('Controller', function ($scope, $http, $localStorage, $location, socket) {
     $scope.init = function () {
+        $scope.oldUser = false;
         $scope.chatRequest = false;
         $scope.chatAccept = false;
         $scope.chatDeclined = false;
@@ -37,9 +38,11 @@ app.controller('Controller', function ($scope, $http, $localStorage, $location, 
         $scope.selectedUser = null;
         $scope.messages = [];
         $scope.msgData = null;
-        $scope.status = "Visible";
         $scope.login = true;
+        $scope.status = "Visible";
         $scope.username = "";
+        $scope.chatDeclinedMessage = "";
+        $scope.chattingWith = "";
 
         if ($scope.userList == undefined) {
             $scope.userList = [];
@@ -50,55 +53,32 @@ app.controller('Controller', function ($scope, $http, $localStorage, $location, 
         }
     };
 
+
     $scope.visibleLogin = function () {
-        $scope.status = "Visible";
+        $scope.visible = true;
         if ($scope.username != "") {
-            $scope.check($scope.username, true)
-            var user = { name: $scope.username, visible: true, online: true };
-            $scope.register(user);
+            $scope.applicationLogin();
         }
     };
 
     $scope.invisibleLogin = function () {
-        $scope.status = "In Visible";
-        $scope.check($scope.username, false)
-        var user = { name: $scope.username, visible: false, online: true };
-        $scope.register(user);
-    };
-
-    $scope.check = function (username, status) {
-        for (var i = 0; i < $scope.userList.length; i++) {
-            if ($scope.userList[i].name == username) {
-                $scope.userList[i].visible = status;
-                socket.emit('login', username, status);
-                $scope.redirect($scope.userList[i]);
-            }
+        $scope.visible = false;
+        if ($scope.username != "") {
+            $scope.applicationLogin();
         }
     };
 
-    $scope.register = function (user) {
-        $scope.userList.push(user);
-        $scope.redirect(user);
+
+    $scope.applicationLogin = function () {
+        $scope.login = false;
+        socket.emit('login', $scope.username, $scope.visible);
     };
+
 
     $scope.logout = function (username) {
         $scope.login = true;
         socket.emit('logout', username);
     };
-
-    $scope.redirect = function (user) {
-        $scope.login = false;
-        $scope.username = user.name;;
-        //console.log(user);
-
-        socket.emit('username', user);
-    };
-
-    $scope.seletedUser = (selectedUser) => {
-        $scope.writeMessage = true;
-        selectedUser === $scope.socketId ? alert("Can't message yourself.") : $scope.selectedUser = selectedUser;
-    };
-
 
     $scope.sendMsg = ($event) => {
         const keyCode = $event.which || $event.keyCode;
@@ -121,22 +101,26 @@ app.controller('Controller', function ($scope, $http, $localStorage, $location, 
         }
     };
 
-
-    //socket.emit('username', $scope.username);
-
-    socket.on('userList', (userList, socketId) => {
-        if ($scope.socketId === null) {
-            $scope.socketId = socketId;
-        }
+    socket.on('login', (userList) => { 
         $scope.userList = userList;
-        $scope.userListCount = userList.length;
+        for (var i = 0; i < $scope.userList.length; i++) {
+            if ($scope.userList[i].name == $scope.username) { 
+                $scope.socketId = $scope.userList[i].id;
+            }
+        }
+        $scope.userListCount = $scope.userList.length;
     });
-
 
     socket.on('exit', (userList) => {
         $scope.userList = userList;
         $scope.userListCount = userList.length;
     });
+
+    $scope.seletedUser = (selectedUser) => {
+        $scope.writeMessage = true;
+        selectedUser === $scope.socketId ? alert("Can't message yourself.") : $scope.selectedUser = selectedUser;
+    };
+
 
     //Chat 
 
@@ -146,15 +130,19 @@ app.controller('Controller', function ($scope, $http, $localStorage, $location, 
             if ($scope.communicationList[i].User2 == $scope.username) {
                 if ($scope.communicationList[i].Accepted) {
                     $scope.chatAccept = true;
-                    $scope.chatRequest = false; 
-                    console.log($scope.userList);
-                    for (var j = 0; j < $scope.userList.length;j++)
-                    {
-                        if($scope.userList[j].userName == $scope.communicationList[i].User1)
-                        {
+                    $scope.chatRequest = false;
+                    for (var j = 0; j < $scope.userList.length; j++) {
+                        if ($scope.userList[j].name == $scope.communicationList[i].User1) { 
+                            $scope.chattingWith = $scope.userList[j].name;
                             $scope.seletedUser($scope.userList[j].id);
                         }
                     }
+                }
+                else if ($scope.communicationList[i].Declined) {
+                    $scope.chatDeclined = true;
+                    $scope.chatRequest = false;
+                    $scope.chatInvite = false;
+                    $scope.chatDeclinedMessage = "Chat request declined from " + $scope.communicationList[i].User1;
                 }
                 else {
                     $scope.chatRequest = true;
@@ -167,10 +155,17 @@ app.controller('Controller', function ($scope, $http, $localStorage, $location, 
                     $scope.chatAccept = true;
                     $scope.chatInvite = false;
                     for (var j = 0; j < $scope.userList.length; j++) {
-                        if ($scope.userList[j].userName == $scope.communicationList[i].User2) {
+                        if ($scope.userList[j].name == $scope.communicationList[i].User2) {
+                            $scope.chattingWith = $scope.userList[j].name;
                             $scope.seletedUser($scope.userList[j].id);
                         }
                     }
+                }
+                else if ($scope.communicationList[i].Declined) {
+                    $scope.chatDeclined = true;
+                    $scope.chatRequest = false;
+                    $scope.chatInvite = false;
+                    $scope.chatDeclinedMessage = "Chat request declined from " + $scope.communicationList[i].User2;
                 }
                 else {
                     $scope.chatInvite = true;

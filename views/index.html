@@ -1,8 +1,8 @@
 <html ng-app="app">
 <head>
-    <link href="stylesheets/login.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ"
-          crossorigin="anonymous">
+    <link href="stylesheets/login.css" rel="stylesheet" /> 
+    <link href="stylesheets/style.css" rel="stylesheet" />
+    <link href="stylesheets/bootstrap.min.css" rel="stylesheet" />
 </head>
 <body ng-controller="Controller">
     <div ng-show="login">
@@ -37,28 +37,49 @@
                                         <button type="button" class="btn btn-outline-danger" ng-click="declineChat(communicationObject)">Decline</button>
                                     </div>
                                 </div>
-                            </div>
-                            <div ng-show="chatAccept">
-                                <ul class="list-group">
-                                    <li class="list-group-item"
-                                        ng-repeat="message in messages">
-                                        {{ message.name === username ? 'You' : message.name }}: {{ message.msg }}
-                                    </li>
-                                </ul>
-                                <div class="alert alert-warning" ng-show='messages.length == 0'>
-                                    No messages for you.
-                                </div>
                                 <hr />
-                                <div>
-                                    <div class="message-sender">
-                                        <textarea class="form-control" ng-model='message' ng-keypress="sendMsg($event)"></textarea>
-                                    </div>
-                                </div>
                             </div>
                             <div ng-show="chatInvite">
                                 <div class="alert alert-info" ng-show='messages.length == 0'>
                                     {{messageInvite}}
                                 </div>
+                                <hr/>
+                            </div> 
+                            <div ng-show="chatDeclined">
+                                <div class="alert alert-warning" ng-show='messages.length == 0'>
+                                    {{chatDeclinedMessage}}
+                                </div>
+                                <hr />
+                            </div> 
+                            <div ng-show="chatAccept"> 
+                                <div class="card">
+                                    <div class="card-header">
+                                        Chating with {{chattingWith}}
+                                    </div>
+                                    <div class="card-block">
+                                        <ul class="list-group">
+                                            <li class="list-group-item"
+                                                ng-repeat="message in messages">
+                                                {{ message.name === username ? 'You' : message.name }}: {{ message.msg }}
+                                            </li>
+                                        </ul>
+                                        <div class="alert alert-warning" ng-show='messages.length == 0'>
+                                            No messages for you.
+                                        </div>
+                                        <hr />
+                                        <p>Press ENTER to send the message</p>
+                                        <div>
+                                            <div class="message-sender">
+                                                <textarea class="form-control" ng-model='message' ng-keypress="sendMsg($event)"></textarea>
+                                            </div>
+                                        </div>
+                                        <hr/>
+                                        <a href="#" class="btn btn-primary">Close chat</a>
+                                    </div>
+                                </div> 
+                            </div>
+                            <div ng-hide="chatAccept"> 
+                                <h3>Select a user to begin chatting</h3>
                             </div> 
                         </div>
                     </div>
@@ -70,56 +91,46 @@
                             </div>
                             <div class="card-block">
                                 <h4 class="card-title">How to chat?</h4>
-                                <p class="card-text">Enter the username in the search box or select from a list of users who have made their precese visible</p>
-                                <div class="form-group">
-                                    <input type="text" class="form-control" ng-model="searchUsername" placeholder="Enter username">
+                                <div ng-show="chatAccept">
+                                    <p class="card-text">Close the chat to enable this feature</p>
                                 </div>
-                                <button type="button" ng-click="search()" class="btn btn-primary">Initiate chat</button>
-                                <hr />
-                                <h4 class="card-title">Visible Users</h4>
-                                <div ng-repeat="user in userList">
-                                    <div ng-if="user.id != socketId">
-                                        <div ng-show="user.online">
-                                            <div class="alert alert-success" role="alert" ng-click="chatInitialte(username,user.userName)">
-                                                {{user.userName}}
+                                <div ng-hide="chatAccept">
+                                    <p class="card-text">Enter the username in the search box or select from a list of users who have made their precese visible</p>
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" ng-model="searchUsername" placeholder="Enter username">
+                                    </div>
+                                    <button type="button" ng-click="search()" class="btn btn-primary">Initiate chat</button>
+                                    <hr />
+                                    <h4 class="card-title">Visible Users</h4>
+                                    <div ng-repeat="user in userList">
+                                        <div ng-if="user.id != socketId">
+                                            <div ng-show="user.online">
+                                                <div class="alert alert-success" role="alert" ng-click="chatInitialte(username,user.name)">
+                                                    {{user.name}}
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div ng-hide="user.online">
-                                            <div class="alert alert-warning" role="alert">
-                                                {{user.userName}} - offline
+                                            <div ng-hide="user.online">
+                                                <div class="alert alert-warning" role="alert">
+                                                    {{user.name}} - offline
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                </div> 
                             </div>
-                        </div>
-                        <!--<h3>USERS ONLINE: {{userListCount}}</h3><hr />
-                        <div class="list-group">
-                            <div class="list-group-item"
-                                 ng-repeat="user in userList"
-                                 ng-class="{ 'active' : user.id == selectedUser}"
-                                 ng-click=seletedUser(user.id);
-                                 ng-style="{'cursor': user.id === socketId ? 'not-allowed' :'pointer'}">
-                                <span id='{{user.id}}'>{{ user.id === socketId ? 'You': user.userName }}</span>
-                            </div>
-                        </div>-->
+                        </div> 
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.socket.io/socket.io-1.0.0.js"></script>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ"
-          crossorigin="anonymous">
-    <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n"
-            crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb"
-            crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn"
-            crossorigin="anonymous"></script>
-    <script src="http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.2/angular.js"></script>
+    <script src="javascripts/angular.js"></script> 
+    <script src="javascripts/jquery-3.1.1.slim.min.js"></script> 
+    <script src="javascripts/tether.min.js"></script>
+    <script src="javascripts/bootstrap.min.js"></script>
+    <script src="javascripts/socket.io-1.0.0.js"></script>
+    <script src="javascripts/ngStorage.min.js"></script> 
     <script src="javascripts/app.js" type="text/javascript"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ngStorage/0.3.6/ngStorage.min.js"></script>
 </body>
 </html>
