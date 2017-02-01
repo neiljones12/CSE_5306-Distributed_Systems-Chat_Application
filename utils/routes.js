@@ -30,7 +30,7 @@ class Routes {
                     }
                 }
 
-                console.log("User: " + username + " has logged off");
+                console.log("\n User: " + username + " has logged off");
 
                 let len = this.users.length;
                 len--;
@@ -58,7 +58,7 @@ class Routes {
                         online: true})
                 }
 
-                console.log("User: " + username + " has logged in");
+                console.log("\n User: " + username + " has logged in");
 
                 let len = this.users.length;
                 len--;
@@ -77,7 +77,7 @@ class Routes {
                     closed: false
                 };
                 this.connection.push(connection);
-                console.log(data.User1 + " has initiated a chat request with " + data.User2);
+                console.log("\n"+data.User1 + " has initiated a chat request with " + data.User2);
                 this.io.emit('communicationList', this.connection);
             });
 
@@ -87,7 +87,7 @@ class Routes {
                         this.connection[i].Accepted = true;
                     }
                 }
-                console.log("Chat initiated between " + data.User1 + " and " + data.User2);
+                console.log("\n Chat initiated between " + data.User1 + " and " + data.User2);
                 this.io.emit('communicationList', this.connection);
             });
 
@@ -98,7 +98,23 @@ class Routes {
                     }
                 }
 
-                console.log("Chat declined between " + data.User1 + " and " + data.User2);
+                console.log("\n -- Chat declined between " + data.User1 + " and " + data.User2);
+                this.io.emit('communicationList', this.connection);
+            });
+
+            socket.on('ConnectionClose', (user) => {
+                var user1 = "";
+                var user2 = "";
+
+                for (var i = 0; i < this.connection.length; i++) {
+                    if (user == this.connection[i].User1 || user == this.connection[i].User2) {
+                        this.connection[i].closed = true;
+                        user1 = this.connection[i].User1;
+                        user2 = this.connection[i].User2;
+                    }
+                }
+
+                console.log("\n Chat closed between " + user1 + " and " + user2);
                 this.io.emit('communicationList', this.connection);
             });
 
