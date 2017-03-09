@@ -1,3 +1,9 @@
+//----------------------------------------------------------------
+//-------------------------   SERVER   ---------------------------
+//------------------------- NEIL JONES ---------------------------
+//------------------------- 1001317689 ---------------------------
+//----------------------------------------------------------------
+
 'use strict';
 
 const express = require("express");
@@ -8,6 +14,8 @@ const path = require('path');
 const favicon = require('serve-favicon');
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
+const net = require('net');
+
 
 const routes = require('./utils/routes');
 const config = require('./utils/config');
@@ -23,10 +31,11 @@ class Server {
         this.http = http.Server(this.app);
         this.socket = socketio(this.http);
         this.app.use(express.static(path.join(__dirname, 'public')));
-        this.app.use(logger('dev'));
+        this.app.use(logger('combined'));
         this.app.use(bodyParser.json());
         this.app.use(bodyParser.urlencoded({ extended: false }));
         this.app.use(cookieParser());
+
     }
 
     appConfig() {
@@ -48,7 +57,7 @@ class Server {
         this.includeRoutes();
 
         this.http.listen(this.port, this.host, () => {
-            console.log(`Listening on http://${this.host}:${this.port}`);
+            console.log(`Listening on http://${this.host}:${this.port}` + `\n`);
         });
     }
 

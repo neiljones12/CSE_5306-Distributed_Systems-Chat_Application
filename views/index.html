@@ -1,3 +1,9 @@
+<!------------------------------------------------------------------
+------------------------- CLIENT GUI ---------------------------
+------------------------- NEIL JONES ---------------------------
+------------------------- 1001317689 ---------------------------
+------------------------------------------------------------------>
+
 <html ng-app="app">
 <head>
     <link href="stylesheets/login.css" rel="stylesheet" /> 
@@ -6,27 +12,29 @@
 </head>
 <body ng-controller="Controller">
     <div ng-show="login">
+        <!--CSS for login page used from http://codepen.io/colorlib/full/rxddKy/-->
         <div class="login-page" ng-init="init()">
             <div class="form">
+                <h1>ASSIGNMENT 1</h1><hr />
                 <form class="login-form">
                     <input type="text" placeholder="username" ng-model="username" />
                     <button type="button" ng-click="visibleLogin()">login</button><hr />
                     <button type="button" ng-click="invisibleLogin()">login Invisible</button>
                 </form>
+                <small>Created by Neil Jones</small>
             </div>
         </div>
     </div>
-    <div ng-hide="login" style="padding:50px;">
-        <div style="padding:20px">
+    <div ng-hide="login" style="padding:50px;"> 
             <div class="container">
 
                 <div class="row row-offcanvas row-offcanvas-right">
 
-                    <div class="col-12 col-md-9">
+                    <div class="col-9 col-md-9">
                         <div class="jumbotron">
                             <button type="button" class="btn btn-secondary float-right" ng-click="logout(username)">Logout</button>
                             <h1>Hello, {{username}}!</h1>
-                            <p>Visibility: <span class="badge badge-default">{{status}}</span></p>
+                            <p>Visibility: <span class="badge badge-default">{{visible}}</span></p>
                             <hr />
                             <div ng-show="chatRequest">
                                 <div class="card">
@@ -84,7 +92,7 @@
                         </div>
                     </div>
 
-                    <div class="col-6 col-md-3 sidebar-offcanvas" id="sidebar">
+                    <div class="col-3 col-md-3" id="sidebar">
                         <div class="card">
                             <div class="card-header">
                                 Registered Users: {{userListCount}}
@@ -101,19 +109,22 @@
                                     </div>
                                     <button type="button" ng-click="search()" class="btn btn-primary">Initiate chat</button>
                                     <hr />
-                                    <h4 class="card-title">Visible Users</h4>
+                                    <h4 class="card-title">Users</h4>
+                                    <p>Users who have enabled visibilty</p><hr />
                                     <div ng-repeat="user in userList">
-                                        <div ng-if="user.id != socketId">
-                                            <div ng-show="user.online">
-                                                <div class="alert alert-success" role="alert" ng-click="chatInitialte(username,user.name)">
-                                                    {{user.name}}
+                                        <div ng-if="user.id != socketId">  
+                                            <div ng-show="user.visible">
+                                                <div ng-show="user.online">
+                                                    <div class="alert alert-success" role="alert" ng-click="chatInitialte(username,user.name)">
+                                                        {{user.name}}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div ng-hide="user.online">
-                                                <div class="alert alert-warning" role="alert">
-                                                    {{user.name}} - offline
+                                                <div ng-hide="user.online">
+                                                    <div class="alert alert-warning" role="alert">
+                                                        {{user.name}} - offline
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            </div> 
                                         </div>
                                     </div>
                                 </div> 
@@ -130,7 +141,6 @@
     <script src="javascripts/tether.min.js"></script>
     <script src="javascripts/bootstrap.min.js"></script>
     <script src="javascripts/socket.io-1.0.0.js"></script>
-    <script src="javascripts/ngStorage.min.js"></script> 
     <script src="javascripts/app.js" type="text/javascript"></script>
 </body>
 </html>
