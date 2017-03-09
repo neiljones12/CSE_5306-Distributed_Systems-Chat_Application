@@ -181,13 +181,15 @@ app.controller('Controller', function ($scope, $http, $location, socket) {
     };
 
     //This method is called when the socket emits Login
-    socket.on('login', (userList) => {
-        $scope.userList = userList;
+    socket.on('login', (data) => {
+        //console.log(data);
+        $scope.userList = data.users;
+        $scope.communicationList = data.connectionList;
         //Userlist is returned and is added to the scope
         for (var i = 0; i < $scope.userList.length; i++) {
             if ($scope.userList[i].name == $scope.username) {
                 $scope.socketId = $scope.userList[i].id;
-            }
+            } 
         }
         //Calculate the number of users based on the user list
         $scope.userListCount = $scope.userList.length;

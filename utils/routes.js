@@ -110,12 +110,14 @@ class Routes {
 
                 console.log("\n User: " + data.username + " has logged in \n");
 
-                let len = this.users.length;
-                len--;
+                var data = {
+                    users: this.users,
+                    connectionList: this.connection
+                };
                 
                 //console.log(this.users);
 
-                this.io.emit('login', this.users, this.users[len].id);
+                this.io.emit('login', data);
 
             });
 
